@@ -1,6 +1,5 @@
 # Scraping the News Headline
 
-Code: 
     # Step 1: Get the URL of the News section
     home_page_url = "https://www.thedp.com"
     req = requests.get(home_page_url)
