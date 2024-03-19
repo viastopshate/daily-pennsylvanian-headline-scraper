@@ -43,13 +43,21 @@ def scrape_data_point():
         loguru.logger.info(f"News section request URL: {req_news.url}")
         loguru.logger.info(f"News section request status code: {req_news.status_code}")
         
+        if news_section_url:
+        req_news = requests.get(news_section_url)
+        loguru.logger.info(f"News section request URL: {req_news.url}")
+        loguru.logger.info(f"News section request status code: {req_news.status_code}")
+
         if req_news.ok:
             soup_news = bs4.BeautifulSoup(req_news.text, "html.parser")
-            # Adjust the selector based on your findings
-            target_element = soup_news.find('a', class_='standard-link')
-            data_point = "" if target_element is None else target_element.text.strip()
-            loguru.logger.info(f"Data point: {data_point}")
-            return data_point
+            # Directly access the title using the known structure
+            title_h3 = soup_news.select_one('div.row.section-article div.col-md-8 h3.standard-link')
+            if title_h3:
+                data_point = title_h3.text.strip()
+                loguru.logger.info(f"Data point: {data_point}")
+                return data_point
+            else:
+                return "Article title not found."
         else:
             return "Failed to retrieve the News section."
     else:
