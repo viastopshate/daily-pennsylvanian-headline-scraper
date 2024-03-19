@@ -44,9 +44,9 @@ def scrape_data_point():
         loguru.logger.info(f"News section request status code: {req_news.status_code}")
         
         if news_section_url:
-        req_news = requests.get(news_section_url)
-        loguru.logger.info(f"News section request URL: {req_news.url}")
-        loguru.logger.info(f"News section request status code: {req_news.status_code}")
+            req_news = requests.get(news_section_url)
+            loguru.logger.info(f"News section request URL: {req_news.url}")
+            loguru.logger.info(f"News section request status code: {req_news.status_code}")
 
         if req_news.ok:
             soup_news = bs4.BeautifulSoup(req_news.text, "html.parser")
