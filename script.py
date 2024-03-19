@@ -20,16 +20,40 @@ def scrape_data_point():
     Returns:
         str: The headline text if found, otherwise an empty string.
     """
-    req = requests.get("https://www.thedp.com")
+    # Step 1: Get the URL of the News section
+    home_page_url = "https://www.thedp.com"
+    req = requests.get(home_page_url)
     loguru.logger.info(f"Request URL: {req.url}")
     loguru.logger.info(f"Request status code: {req.status_code}")
 
+    news_section_url = ""
     if req.ok:
         soup = bs4.BeautifulSoup(req.text, "html.parser")
-        target_element = soup.find("a", class_="frontpage-link")
-        data_point = "" if target_element is None else target_element.text
-        loguru.logger.info(f"Data point: {data_point}")
-        return data_point
+        # Assuming the structure to find the news section URL (adjust as necessary)
+        news_link = soup.find('div', class_='col-sm-10').find('div', class_='section-list').find('div', class_='col-sm-3').find('a')
+        if news_link and news_link.has_attr('href'):
+            news_section_url = news_link['href']
+            loguru.logger.info(f"News section URL: {news_section_url}")
+        else:
+            return "News section URL not found."
+
+    # Step 2: Scrape the first title from the News section
+    if news_section_url:
+        req_news = requests.get(news_section_url)
+        loguru.logger.info(f"News section request URL: {req_news.url}")
+        loguru.logger.info(f"News section request status code: {req_news.status_code}")
+        
+        if req_news.ok:
+            soup_news = bs4.BeautifulSoup(req_news.text, "html.parser")
+            # Adjust the selector based on your findings
+            target_element = soup_news.find('a', class_='standard-link')
+            data_point = "" if target_element is None else target_element.text.strip()
+            loguru.logger.info(f"Data point: {data_point}")
+            return data_point
+        else:
+            return "Failed to retrieve the News section."
+    else:
+        return "Failed to determine the News section URL."
 
 
 if __name__ == "__main__":
