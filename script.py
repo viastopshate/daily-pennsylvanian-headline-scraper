@@ -26,32 +26,32 @@ def scrape_data_point():
     loguru.logger.info(f"Request URL: {req.url}")
     loguru.logger.info(f"Request status code: {req.status_code}")
 
-    news_section_url = ""
+    sports_section_url = ""
     if req.ok:
         soup = bs4.BeautifulSoup(req.text, "html.parser")
-        # Assuming the structure to find the news section URL (adjust as necessary)
-        news_link = soup.find('div', class_='col-sm-10').find('div', class_='section-list').find('div', class_='col-sm-3').find('a')
-        if news_link and news_link.has_attr('href'):
-            news_section_url = news_link['href']
-            loguru.logger.info(f"News section URL: {news_section_url}")
+        # Find all 'div' elements with class 'col-sm-3' under the 'div' with class 'section-list'
+        # and select the second one for the Sports section
+        col_sm_3_divs = soup.find('div', class_='section-list').find_all('div', class_='col-sm-3')
+        if len(col_sm_3_divs) > 1:  # Ensure there are at least two such divs
+            sports_link = col_sm_3_divs[1].find('a')  # Select the second 'div' for Sports
+            if sports_link and sports_link.has_attr('href'):
+                sports_section_url = sports_link['href']
+                loguru.logger.info(f"Sports section URL: {sports_section_url}")
+            else:
+                return "Sports section URL not found."
         else:
-            return "News section URL not found."
+            return "Insufficient 'col-sm-3' divs found."
 
-    # Step 2: Scrape the first title from the News section
-    if news_section_url:
-        req_news = requests.get(news_section_url)
-        loguru.logger.info(f"News section request URL: {req_news.url}")
-        loguru.logger.info(f"News section request status code: {req_news.status_code}")
-        
-        if news_section_url:
-            req_news = requests.get(news_section_url)
-            loguru.logger.info(f"News section request URL: {req_news.url}")
-            loguru.logger.info(f"News section request status code: {req_news.status_code}")
+    # Step 2: Scrape the first title from the Sports section
+    if sports_section_url:
+        req_sports = requests.get(sports_section_url)
+        loguru.logger.info(f"Sports section request URL: {req_sports.url}")
+        loguru.logger.info(f"Sports section request status code: {req_sports.status_code}")
 
-        if req_news.ok:
-            soup_news = bs4.BeautifulSoup(req_news.text, "html.parser")
-            # Directly access the title using the known structure
-            title_h3 = soup_news.select_one('div.row.section-article div.col-md-8 h3.standard-link')
+        if req_sports.ok:
+            soup_sports = bs4.BeautifulSoup(req_sports.text, "html.parser")
+            # The structure to find the title remains the same as described for the News section
+            title_h3 = soup_sports.select_one('div.row.section-article div.col-md-8 h3.standard-link')
             if title_h3:
                 data_point = title_h3.text.strip()
                 loguru.logger.info(f"Data point: {data_point}")
@@ -59,9 +59,9 @@ def scrape_data_point():
             else:
                 return "Article title not found."
         else:
-            return "Failed to retrieve the News section."
+            return "Failed to retrieve the Sports section."
     else:
-        return "Failed to determine the News section URL."
+        return "Failed to determine the Sports section URL."
 
 
 if __name__ == "__main__":
